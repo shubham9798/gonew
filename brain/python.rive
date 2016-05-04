@@ -160,7 +160,7 @@ print(str(req))
 import wikipedia
 place = args
 wiki_text = str(wikipedia.summary(place))
-re wiki_text
+print wiki_text
 <object
 
 >object varundev python

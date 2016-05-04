@@ -1,0 +1,281 @@
+// Example of a Python object macro.
+
+! version = 2.0
+
+> object base64 python
+    import base64 as b64
+    mess = " ".join(args)
+
+    # Make this function work in Python3 as well.
+    import sys
+    if sys.version_info[0] == 3:
+        # Python3's Base64 requires bytes, not a str,
+        # so encode the str into bytes.
+        mess = mess.encode()
+        base = b64.b64encode(mess)
+
+        # Return the base64 result, decoded back into a str.
+        return base.decode()
+    else:
+        # Python2 is simple.
+        return b64.b64encode(mess)
+< object
+
+> object add python
+    # This function returns an int, and shows that the results
+    # from python object macros are always casted to str.
+    a, b = args
+    return int(a) + int(b)
+< object
+
+>object googelmaps python
+import googlemaps
+src= raw_input("Enter the source:")
+dest = raw_input("Enter the destination:")
+gmaps = googlemaps.Client(key='AIzaSyCMRyoXahIXK4exUlA7pe1wjpnWZUFZ4BM')
+result = gmaps.distance_matrix(src,dest,mode=None, language=None, avoid=None, units=None, departure_time=None, arrival_time=None, transit_mode=None, transit_routing_preference=None)
+if  result['status'] == 'OK':
+	print("GoGuru>")
+	print("Duration = "+result['rows'][0]['elements'][0]['duration']['text'])
+	print("Distance ="+result['rows'][0]['elements'][0]['distance']['text'])
+	print("Happy Journey")
+<object
+
+>object minfare python
+import requests
+import re
+src, dest, date = args
+from pymongo import MongoClient
+
+client = MongoClient()
+db = client.data
+pattern = re.compile('.*'+src+'.*', re.IGNORECASE)
+cursor = db.ic.find({"city":pattern})
+src = cursor[0]['iata']
+
+pattern = re.compile('.*'+dest+'.*', re.IGNORECASE)
+cursor = db.ic.find({"city":pattern })
+
+dest = cursor[0]['iata']
+
+url = "http://developer.goibibo.com/api/stats/minfare/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&format=json&vertical=flight&source="+src+"&destination="+dest+"&mode=one&sdate="+date+"&class=E"
+r = requests.get(url)
+req=r.json()
+final = ("Fare:" + str(req['resource1']['fare']) + "\nCarrier:" + str(req['resource1']['carrier'])+ "\nClass:" + str(req['resource1']['class']))
+return final
+<object
+
+>object flightsearch python
+import requests
+import re
+src, dest, date = args
+
+from pymongo import MongoClient
+
+client = MongoClient()
+db = client.data
+pattern = re.compile('.*'+src+'.*', re.IGNORECASE)
+cursor = db.ic.find({"city":pattern})
+src = cursor[0]['iata']
+
+pattern = re.compile('.*'+dest+'.*', re.IGNORECASE)
+cursor = db.ic.find({"city":pattern })
+
+dest = cursor[0]['iata']
+url = "http://developer.goibibo.com/api/search/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&format=json&source="+src+"&destination="+dest+"&dateofdeparture="+date+"&seatingclass=E&adults=1&children=0&infants=0"
+r = requests.get(url)
+req=r.json()
+final =("Total Fare:" + str(req['data']['onwardflights'][0]['fare']['totalfare']) + "\nCarriers:" + str(req['data']['onwardflights'][0]['carriers']))
+return final	
+<object
+
+>object buslayout python
+import requests
+src, dest, date = args
+r = requests.get("http://developer.goibibo.com/api/stats/minfare/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&format=json&vertical=flight&source="+src+"&destination="+dest+"&mode=one&sdate="+date+"&class=E")
+req=r.json()
+print(str(req['resource1']))
+<object
+
+>object bussearch python
+import requests
+src, dest, date = args
+final = ""
+r = requests.get("http://developer.goibibo.com/api/bus/search/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&format=json&source="+src+"&destination="+dest+"&dateofdeparture="+date)
+req=r.json()
+final = final +("Total Fare:" + str(req['data']['onwardflights'][0]['fare']['totalfare']) + "\nDuration:" + str(req['data']['onwardflights'][0]['duration']) + "\nSeat Type:" + str(req['data']['onwardflights'][0]['seat']))
+return final
+<object
+
+>object hotelsearch python
+import requests
+src = args
+final = ""
+r = requests.get("http://developer.goibibo.com/api/voyager/get_hotels_by_cityid/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&city_id=6771549831164675055")
+req=r.json()
+print(req.keys())
+final = final +("Hotel name: " + str(req[req.keys()[0]]['hotel_data_node']['name']) + "\nFacilities:" + str(req[req.keys()[0]]['hotel_data_node']['facilities']['mapped']))
+return final
+<object
+
+>object hoteldetails python
+import requests
+src,date = args
+from pymongo import MongoClient
+client = MongoClient()
+
+db = client.data
+city = src
+cursor = db.citylist.find({"City name":city})
+
+id = (cursor[0]['City ID'])
+r = requests.get("http://developer.goibibo.com/api/cyclone/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&city_id="+id+"&check_in="+date+"&check_out=20151011")
+req=r.json()
+print(str(req))
+<object
+
+>object hotelprice python
+import requests
+r = requests.get("http://developer.goibibo.com/api/cyclone/?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&city_id=6771549831164675055&check_in=20151010&check_out=20151011")
+req=r.json()
+print(str(req))
+<object
+ 
+
+>object hotelreview python
+import requests
+r = requests.get("http://ugc.goibibo.com/api/HotelReviews/forWeb?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&vid=7022552177697192106&limit=10&offset=0")
+req=r.json()
+print(str(req))
+<object
+
+>object hotelrating python
+import requests
+r = requests.get("http://ugc.goibibo.com/api/Hotels/getRatings?app_id=c8ba3aab&app_key=b79c9dd2b91b7df405094f2eb5e475ff&vid=7022552177697192106")
+req=r.json()
+print(str(req))
+<object
+
+>object wikipedia python
+import wikipedia
+place = args
+wiki_text = str(wikipedia.summary(place))
+return wiki_text
+<object
+
+>object varundev python
+
+import requests
+import googlemaps
+gmaps = googlemaps.Client(key='AIzaSyCMRyoXahIXK4exUlA7pe1wjpnWZUFZ4BM')
+self.response.out.write("Enter place:")
+place = self.request.get("content")
+#print(place)
+self.response.out.write("Enter date [YYYY]-[MM]-[DD] :")
+date =  self.request.get("content")
+#print(date)
+
+# Geocoding and address
+geocode_result = gmaps.geocode(place)
+
+lat = geocode_result[0]['geometry']['location']['lat']
+lng = geocode_result[0]['geometry']['location']['lng']
+    
+code = str(lat)+","+str(lng)+","+date+"T12:00:00-0400"
+
+r=requests.get("https://api.forecast.io/forecast/42c20139ea8fac189a494795e7182eb9/"+code)
+
+req = r.json()
+
+return(req['hourly']['summary'])
+
+<object
+
+
+
+
++ encode * in base64
+- OK: <call>base64 <star></call>
+
++ what is # plus #
+- <star1> + <star2> = <call>add <star1> <star2></call>
+
++ python set * to *
+- Setting user variable <star1> to <star2>.<call>setvar <star1> <star2></call>
+
++ [*] book [*] flight [*] 
+- Do you want to book a flight?
+
++ *
+% do you want to book a flight
+* <star> == yes => Enter details in format "book flight from <src> to <dest> for <yyyymmdd>"
+* <star> == no => Okay :)
+
++ book flight from _ to _ for #
+- Flight details = <call>flightsearch <star1> <star2> <star3></call>
+
++ [*] (min|minimum) fare [*]
+- Do you want to get min fare details?
+
++ *
+% do you want to get min fare details
+* <star> == yes => Enter details in format "get fare from <src> to <dest> for <yyyymmdd>"
+* <star> == no => Okay :)
+
++ get fare from _ to _ for #
+- Min fare details = <call>minfare <star1> <star2> <star3></call>
+
++ [*] bus [*] search [*]
+- Do you want to search for a bus?
+
++ book bus from _ to _ for #
+- Bus details= <call>bussearch <star1> <star2> <star3></call>
+
++ *
+% do you want to search for a bus
+* <star> == yes => Enter details in format "book bus from <src> to <dest> for <yyyymmdd>"
+* <star> == no => Okay :)
+
++ book bus from _ to _ for #
+- Bus details= <call>bussearch <star1> <star2> <star3></call>
+
++ [*] search [*] hotel [*]
+- Which city do you want to search for?
+
++ *
+% which city do you want to search for
+- Hotel details = <call>hotelsearch <star> </call>
+
++ [*] details [*] hotel [*]
+- Which city do you want to search for?(eg. Enter in format "city <name> on date <yyyymmdd>")
+
++ city * on date #
+- Hotel details = <call>hoteldetails <star1> <star2></call>
+
++ hotel price
+- <call>hotelprice</call>
+
++ hotel reviews
+- <call>hotelreview</call>
+
++ hotel rating
+- <call>hotelrating</call>
+
++ [*] (need info|need information|want info|want information) [*] 
+- should I give you a brief information
+
++ *
+% should i give you a brief information?
+* <star> == yes =>What do you need information on?
+* <star> == no => Okay :)
+
++ *
+% what do you need information on
+- This is what I got <call>wikipedia <star></call>
+
++ [*] (direction|distance) [*]
+-  <call>googelmaps </call>
+
+
++ [*] forecast [*]
+- <call>varundev </call> 

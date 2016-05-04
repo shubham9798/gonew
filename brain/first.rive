@@ -1,0 +1,156 @@
+! version = 2.0
+
++ hello bot
+- Hello, human!
+
++ how are you *
+- I'm great, how are you?
+- I'm good, you?
+- Good :) you?
+- Great! You?
+- I'm fine, thanks for asking!
+
++ who are you *
+- I am GoGuru . So , how can GoGuru help you ? 
+
++ tell me a poem
+- Little Miss Muffit sat on her tuffet,\n
+^ In a nonchalant sort of way.\n
+^ With her forcefield around her,\n
+^ The Spider, the bounder,\n
+^ Is not in the picture today.
+
++ google *
+- Google search: <a href="http://google.com/search?q=<star>">Click Here</a>
+
++ i hate you
+- You're really mean! I'm not talking again until you apologize.{topic=sorry}
+
+> topic sorry
+
+  // This will match if the word "sorry" exists ANYWHERE in their message
+  + [*] sorry [*]
+  - It's OK, I'll forgive you!{topic=random}
+
+  + *
+  - Nope, not until you apologize.
+  - Say you're sorry!
+  - Apologize!
+
+< topic
+
+
++ *
+- Could you tell me more about that !
+
++ say something random
+-  {random}you are mad|you are awesome| i am in love{/random}
+
++ what is up
+- Not much, you?
+- nm, you?
+- Not a lot, you?
+
++ you are a bot
+- How did you know I'm a machine?
+
++ my name is *
+- Nice to meet you, <star1>!
+
++ * told me to say *
+- Why would <star1> tell you to say "<star2>"?
+- Did you say "<star2>" after <star1> told you to?
+
++ i am * years old
+- A lot of people are <star1> years old.
+
++ *
+- I'm not sure how to reply to that.
+- Try asking your question a different way.
+- Let's change the subject.
+
++ i am # years old
+- A lot of people are <star> years old.
+
++ i am _ years old
+- Tell me that again but with a number this time.
+
++ i am * years old
+- Can you use a number instead?
+
++ what is your (home|office|cell) number
+- You can reach me at: 1-860-2-585858
+
++ i am (really|very|super) tired
+- I'm sorry to hear that you are <star> tired.
+
++ i (like|love) the colour *
+- What a coincidence! I <star1> that colour too!
+- I also have a soft spot for the colour <star2>!
+- Really? I <star1> the colour <star2> too!
+- Oh I <star1> <star2> too!
+
++ i (will|will not) *
+- It doesn't matter to me whether you <star2> or not.
+
++ [*] the machine [*]
+- How do you know about the machine!?
+
+! array colours = red blue green yellow black majenta white 
++ what colour is my (@colours) *
+- Your <star2> is <star1>, silly!
+- Do I look dumb to you? It's <star1>!
+
++ i am wearing a (@colours) shirt
+- Do you really like <star>?
+
++ what colour is my @colours *
+- I don't know what colour your <star> is.
+- i just bought a [@colours] *
+- Is that your first <star>?
+
+
+
+! array colours = red blue green yellow orange cyan fuchsia magenta
+^ light red|dark red|light blue|dark blue|light yellow|dark yellow
+^ light orange|dark orange|light cyan|dark cyan|light fuchsia
+^ dark fuchsia|light magenta|dark magenta
+^ black gray white silver
+^ light gray|dark gray
+
+> object base64 python
+    import base64 as b64
+    mess = " ".join(args)
+
+    # Make this function work in Python3 as well.
+    import sys
+    if sys.version_info[0] == 3:
+        # Python3's Base64 requires bytes, not a str,
+        # so encode the str into bytes.
+        mess = mess.encode()
+        base = b64.b64encode(mess)
+
+        # Return the base64 result, decoded back into a str.
+        return base.decode()
+    else:
+        # Python2 is simple.
+        return b64.b64encode(mess)
+< object
+
+
+> object add python
+    # This function returns an int, and shows that the results
+    # from python object macros are always casted to str.
+    a, b = args
+    return int(a) + int(b)
+< object
+
+> object add1 python
+    # This function returns an int, and shows that the results
+    # from python object macros are always casted to str.
+    a, b = 10,12
+    return int(a) + int(b)
+< object
+
++ what is # plus #
+- <star1> + <star2> = <call>add <star1> <star2></call>

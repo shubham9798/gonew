@@ -158,7 +158,7 @@ print(str(req))
 
 >object wikipedia python
 import wikipedia
-place = args
+place = sargs
 wiki_text = str(wikipedia.summary(place))
 print (wiki_text)
 <object

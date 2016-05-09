@@ -159,7 +159,7 @@ print(str(req))
 >object wikipedia python
 import wikipedia
 place = str(args)
-wiki_text = wikipedia.summary(place).encode('utf-
+wiki_text = wikipedia.summary(place).encode('utf-8')
 print (wiki_text)
 <object
 

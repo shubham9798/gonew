@@ -168,11 +168,9 @@ print (wiki_text)
 import requests
 import googlemaps
 gmaps = googlemaps.Client(key='AIzaSyCMRyoXahIXK4exUlA7pe1wjpnWZUFZ4BM')
-self.response.out.write("Enter place:")
-place = self.request.get("content")
+place = raw_input("Enter place:")
 #print(place)
-self.response.out.write("Enter date [YYYY]-[MM]-[DD] :")
-date =  self.request.get("content")
+date = raw_input("Enter date [YYYY]-[MM]-[DD] :")
 #print(date)
 
 # Geocoding and address
